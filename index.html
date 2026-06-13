@@ -1087,7 +1087,8 @@ function viewImage(src) {
 }
 
 function exportData() {
-  const blob = new Blob([JSON.stringify(entries, null, 2)], {type: 'application/json'});
+  const payload = { entries: entries, oshiOrder: oshiOrder };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const now = new Date();
@@ -1107,14 +1108,28 @@ function importData(event) {
   const reader = new FileReader();
   reader.onload = async e => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) throw new Error('invalid format');
+      const parsed = JSON.parse(e.target.result);
+      let data, order;
+      if (Array.isArray(parsed)) {
+        data = parsed;
+        order = null;
+      } else if (parsed && Array.isArray(parsed.entries)) {
+        data = parsed.entries;
+        order = Array.isArray(parsed.oshiOrder) ? parsed.oshiOrder : null;
+      } else {
+        throw new Error('invalid format');
+      }
       if (entries.length > 0) {
         if (!confirm(`現在の記録(${entries.length}件)を、復元データ(${data.length}件)で上書きしますか？\n「キャンセル」で追加読み込みになります。`)) {
           const existingIds = new Set(entries.map(e => e.id));
           const toAdd = data.filter(d => !existingIds.has(d.id));
           await dbPutAll(toAdd);
           entries.push(...toAdd);
+          if (order) {
+            const merged = [...oshiOrder, ...order.filter(o => !oshiOrder.includes(o))];
+            oshiOrder = merged;
+            await saveOshiOrder();
+          }
           render();
           showToast(`${toAdd.length}件を追加読み込みしました`);
           return;
@@ -1123,6 +1138,10 @@ function importData(event) {
       await dbClear();
       await dbPutAll(data);
       entries = data;
+      if (order) {
+        oshiOrder = order;
+        await saveOshiOrder();
+      }
       render();
       showToast('復元しました ✓');
     } catch(err) {
