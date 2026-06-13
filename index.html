@@ -4,9 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0a0a14">
-<title>推し活VLOG</title>
+<title>LIVE:Diary</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-startup-image" href="splash-640x1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
 <link rel="icon" href="icon-192.png">
 <style>
   html, body {
@@ -319,9 +326,10 @@
     margin-top: 10px;
     padding-bottom: 4px;
   }
-  .card-images img {
+  .card-images img, .card-images video {
     height: 100px;
     width: auto;
+    max-width: 220px;
     border-radius: 8px;
     border: 1px solid rgba(0,240,255,0.3);
     flex-shrink: 0;
@@ -437,12 +445,23 @@
     width: 72px;
     height: 72px;
   }
-  .img-preview img {
+  .img-preview img, .img-preview video {
     width: 72px;
     height: 72px;
     object-fit: cover;
     border-radius: 8px;
     border: 1px solid rgba(255,46,196,0.4);
+  }
+  .img-preview .vid-badge {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 10px;
+    border-radius: 4px;
+    padding: 1px 4px;
+    pointer-events: none;
   }
   .img-preview .rm {
     position: absolute;
@@ -544,6 +563,7 @@
     <input type="file" accept="application/json" style="display:none" onchange="importData(event)">
   </label>
   <button onclick="location.reload()">🔄 リロード</button>
+  <div class="settings-label" id="storageInfo"></div>
 </div>
 
 <div class="oshibar" id="oshibar"></div>
@@ -591,7 +611,8 @@
     </div>
     <div class="field">
       <label>画像(チケット・写真など)</label>
-      <input type="file" id="f-images" accept="image/*" multiple onchange="handleImages(event)">
+      <input type="file" id="f-images" accept="image/*,video/*" multiple onchange="handleImages(event)">
+      <div class="hint">動画も追加できます(大きいサイズの動画は保存容量に注意)</div>
       <div class="img-preview" id="imgPreview"></div>
     </div>
     <div class="modal-actions">
@@ -616,8 +637,33 @@ let currentThumb = null;
 let editingId = null;
 let activeOshi = null;
 
-function toggleSettings() {
-  document.getElementById('settingsPanel').classList.toggle('show');
+async function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('show');
+  if (panel.classList.contains('show')) {
+    await updateStorageInfo();
+  }
+}
+
+async function updateStorageInfo() {
+  const el = document.getElementById('storageInfo');
+  if (!el) return;
+  if (!navigator.storage || !navigator.storage.estimate) {
+    el.textContent = '';
+    return;
+  }
+  try {
+    const { usage, quota } = await navigator.storage.estimate();
+    const usedMB = (usage / 1024 / 1024).toFixed(1);
+    const quotaMB = (quota / 1024 / 1024).toFixed(0);
+    const pct = quota ? Math.round((usage / quota) * 100) : 0;
+    el.textContent = `使用容量: ${usedMB}MB / ${quotaMB}MB (${pct}%)`;
+    if (pct > 80) {
+      el.textContent += ' ⚠ 残り少ないです';
+    }
+  } catch(e) {
+    el.textContent = '';
+  }
 }
 
 const DEFAULT_HEADER_KEY = '__default__';
@@ -970,7 +1016,14 @@ function render() {
       </div>
       <div class="card-detail">
         ${e.memo ? `<div class="card-memo">${escapeHtml(e.memo)}</div>` : ''}
-        ${e.images && e.images.length ? `<div class="card-images">${e.images.map(img => `<img src="${img}" onclick="event.stopPropagation(); viewImage('${img.replace(/'/g,"\\'")}')">`).join('')}</div>` : ''}
+        ${e.images && e.images.length ? `<div class="card-images">${e.images.map(item => {
+          const isVideo = item && item.type === 'video';
+          const src = item && item.data ? item.data : item;
+          if (isVideo) {
+            return `<video src="${src}" controls playsinline></video>`;
+          }
+          return `<img src="${src}" onclick="event.stopPropagation(); viewImage('${src.replace(/'/g,"\\'")}')">`;
+        }).join('')}</div>` : ''}
         <div class="card-actions">
           <button onclick="editEntry('${e.id}')">編集</button>
           <button class="delete" onclick="deleteEntry('${e.id}')">削除</button>
@@ -1012,20 +1065,34 @@ function closeModal() {
   document.getElementById('f-thumb').value = '';
 }
 
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function handleImages(event) {
   const files = Array.from(event.target.files);
   if (files.length === 0) return;
-  showToast(`画像を処理中... (${files.length}枚)`);
+  showToast(`ファイルを処理中... (${files.length}件)`);
   for (const file of files) {
     try {
-      const dataUrl = await compressImage(file, 1280, 0.8);
-      currentImages.push(dataUrl);
+      if (file.type.startsWith('video/')) {
+        const dataUrl = await readFileAsDataURL(file);
+        currentImages.push({ type: 'video', data: dataUrl });
+      } else {
+        const dataUrl = await compressImage(file, 1280, 0.8);
+        currentImages.push({ type: 'image', data: dataUrl });
+      }
       renderImgPreview();
     } catch(e) {
-      showToast('画像の読み込みに失敗しました');
+      showToast('ファイルの読み込みに失敗しました');
     }
   }
-  showToast('画像を追加しました ✓');
+  showToast('追加しました ✓');
 }
 
 async function handleThumb(event) {
@@ -1058,12 +1125,16 @@ function removeThumb() {
 
 function renderImgPreview() {
   const el = document.getElementById('imgPreview');
-  el.innerHTML = currentImages.map((img, i) => `
+  el.innerHTML = currentImages.map((item, i) => {
+    const isVideo = item && item.type === 'video';
+    const src = item.data || item; // backward compat with old string entries
+    return `
     <div class="thumb">
-      <img src="${img}">
+      ${isVideo ? `<video src="${src}" muted></video><span class="vid-badge">▶</span>` : `<img src="${src}">`}
       <button class="rm" onclick="removeImage(${i})">×</button>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function removeImage(i) {
