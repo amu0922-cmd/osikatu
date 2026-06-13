@@ -34,7 +34,7 @@
   header {
     position: relative;
     height: 180px;
-    background-image: url('header.jpg');
+    background-image: var(--header-img, url('header.jpg'));
     background-size: cover;
     background-position: center;
     display: flex;
@@ -42,6 +42,7 @@
     justify-content: flex-start;
     padding: 0;
     overflow: hidden;
+    transition: background-image 0.3s;
   }
   header::after {
     content: '';
@@ -73,69 +74,122 @@
     text-transform: uppercase;
   }
 
-  .toolbar {
-    display: flex;
-    gap: 8px;
-    padding: 0 16px 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .toolbar button, .toolbar label {
-    background: transparent;
-    border: 1px solid var(--neon-cyan);
+  .settings-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,240,255,0.4);
+    background: rgba(10,10,20,0.55);
     color: var(--neon-cyan);
+    font-size: 15px;
+    cursor: pointer;
+    backdrop-filter: blur(2px);
+  }
+  .settings-panel {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .settings-panel.show { display: flex; }
+  .settings-label {
+    font-size: 11px;
+    color: var(--neon-purple);
+    letter-spacing: 1px;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .order-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,240,255,0.05);
+    border: 1px solid rgba(0,240,255,0.15);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+  }
+  .order-row .order-name {
+    flex: 1;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text);
+  }
+  .order-row button {
+    background: transparent;
+    border: 1px solid rgba(0,240,255,0.3);
+    color: var(--neon-cyan);
+    border-radius: 6px;
+    width: 30px;
+    height: 26px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .order-row button:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+  .settings-panel button, .settings-panel label {
+    background: transparent;
+    border: 1px solid rgba(0,240,255,0.3);
+    color: var(--text-dim);
     padding: 8px 14px;
-    border-radius: 20px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: bold;
     cursor: pointer;
     letter-spacing: 1px;
-    transition: all 0.2s;
-    text-shadow: 0 0 8px rgba(0,240,255,0.6);
+    text-align: center;
   }
-  .toolbar button:active, .toolbar label:active {
-    background: var(--neon-cyan);
-    color: var(--bg);
-    box-shadow: 0 0 20px var(--neon-cyan);
+  .settings-panel button:active, .settings-panel label:active {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
   }
 
-  /* Folder bar */
-  .folderbar {
+  /* Oshi sticky-note tabs */
+  .oshibar {
     display: flex;
-    gap: 8px;
-    padding: 0 16px 16px;
+    gap: 6px;
+    padding: 14px 16px 0;
     overflow-x: auto;
     max-width: 600px;
     margin: 0 auto;
   }
-  .folder-chip {
+  .oshi-tab {
     flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 14px;
-    border-radius: 14px;
-    font-size: 11px;
-    font-weight: bold;
-    border: 1px solid var(--neon-purple);
-    color: var(--neon-purple);
-    background: rgba(177,78,255,0.06);
-    cursor: pointer;
+    padding: 9px 16px 7px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
     white-space: nowrap;
-    letter-spacing: 0.5px;
-    min-width: 64px;
-  }
-  .folder-chip .icon { font-size: 18px; }
-  .folder-chip.active {
-    background: var(--neon-purple);
+    cursor: pointer;
+    border-radius: 8px 8px 2px 2px;
     color: var(--bg);
-    box-shadow: 0 0 14px rgba(177,78,255,0.6);
+    position: relative;
+    transform: rotate(-1deg);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    opacity: 0.55;
+    transition: opacity 0.15s, transform 0.15s;
   }
-  .folder-chip .count {
-    font-size: 9px;
-    opacity: 0.7;
+  .oshi-tab:nth-child(1) { background: var(--neon-pink); }
+  .oshi-tab:nth-child(2) { background: var(--neon-cyan); transform: rotate(1deg); }
+  .oshi-tab:nth-child(3) { background: var(--neon-yellow); }
+  .oshi-tab:nth-child(4) { background: var(--neon-purple); transform: rotate(1deg); color: #fff; }
+  .oshi-tab:nth-child(5) { background: #00ffa3; }
+  .oshi-tab:nth-child(6) { background: #ff9d2e; transform: rotate(1deg); }
+  .oshi-tab:nth-child(n+7) { background: var(--text-dim); color: var(--bg); }
+  .oshi-tab.active {
+    opacity: 1;
+    transform: rotate(0deg) translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.5);
   }
+
 
   #list {
     padding: 0 12px;
@@ -174,7 +228,11 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
+  }
+  .card-info {
+    flex: 1;
+    min-width: 0;
   }
   .card-date {
     font-size: 11px;
@@ -201,6 +259,19 @@
     flex-shrink: 0;
   }
   .card.open .card-title .chev { transform: rotate(90deg); }
+  .card-title .title-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .title-thumb {
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(0,240,255,0.4);
+    flex-shrink: 0;
+    cursor: zoom-in;
+  }
   .card-venue {
     font-size: 12px;
     color: var(--neon-purple);
@@ -209,21 +280,6 @@
     font-size: 11px;
     color: var(--text-dim);
     margin-top: 2px;
-  }
-  .card-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  .card-tags span {
-    font-size: 10px;
-    padding: 3px 9px;
-    border-radius: 10px;
-    background: rgba(177,78,255,0.15);
-    border: 1px solid var(--neon-purple);
-    color: var(--neon-purple);
-    letter-spacing: 0.5px;
   }
   .card-detail {
     display: none;
@@ -452,9 +508,17 @@
     <h1>Vlog</h1>
     <p>OSHI ACTIVITY RECORD</p>
   </div>
+  <button class="settings-btn" onclick="toggleSettings()">⚙</button>
 </header>
 
-<div class="toolbar">
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-label" id="headerLabel">ヘッダー画像(すべて共通)</div>
+  <label>🖼 ヘッダー画像を変更
+    <input type="file" accept="image/*" style="display:none" onchange="handleHeaderImage(event)">
+  </label>
+  <button id="resetHeaderBtn" onclick="resetHeaderImage()" style="display:none;">↺ デフォルトに戻す</button>
+  <div class="settings-label">カテゴリの並び順</div>
+  <div id="oshiOrderList"></div>
   <button onclick="exportData()">⬇ バックアップ書き出し</button>
   <label>⬆ 復元
     <input type="file" accept="application/json" style="display:none" onchange="importData(event)">
@@ -462,7 +526,9 @@
   <button onclick="location.reload()">🔄 リロード</button>
 </div>
 
-<div class="folderbar" id="folderbar"></div>
+<div class="oshibar" id="oshibar"></div>
+
+
 
 <div id="list"></div>
 
@@ -477,6 +543,12 @@
       <input type="date" id="f-date">
     </div>
     <div class="field">
+      <label>タイトル画像(サムネイル)</label>
+      <input type="file" id="f-thumb" accept="image/*" onchange="handleThumb(event)">
+      <div class="img-preview" id="thumbPreview"></div>
+      <div class="hint">タイトルの横に小さく表示されます</div>
+    </div>
+    <div class="field">
       <label>タイトル(ライブ名・イベント名)</label>
       <input type="text" id="f-title" placeholder="例: ○○ 5th Anniversary Live">
     </div>
@@ -489,9 +561,9 @@
       <input type="text" id="f-seat" placeholder="例: アリーナ Aブロック 12列 34番">
     </div>
     <div class="field">
-      <label>タグ</label>
-      <input type="text" id="f-tags" placeholder="例: ライブ, グッズ, 聖地巡礼">
-      <div class="hint">カンマ区切りで複数入力できます</div>
+      <label>推し(カテゴリタブ)</label>
+      <input type="text" id="f-oshi" placeholder="例: ミセス, あいみょん">
+      <div class="hint">画面上部のタブで切り替えられます</div>
     </div>
     <div class="field">
       <label>感想・メモ</label>
@@ -520,72 +592,325 @@
 const STORAGE_KEY = 'oshikatsu_log_entries';
 let entries = [];
 let currentImages = [];
+let currentThumb = null;
 let editingId = null;
-let activeTag = null;
+let activeOshi = null;
 
-function load() {
+function toggleSettings() {
+  document.getElementById('settingsPanel').classList.toggle('show');
+}
+
+const DEFAULT_HEADER_KEY = '__default__';
+
+function headerKeyFor(oshi) {
+  return oshi || DEFAULT_HEADER_KEY;
+}
+
+async function applyHeaderImage() {
+  const key = headerKeyFor(activeOshi);
+  let img = await dbGetHeader(key);
+  if (!img && key !== DEFAULT_HEADER_KEY) {
+    img = await dbGetHeader(DEFAULT_HEADER_KEY);
+  }
+  const header = document.querySelector('header');
+  const resetBtn = document.getElementById('resetHeaderBtn');
+  const label = document.getElementById('headerLabel');
+  if (img) {
+    header.style.setProperty('--header-img', `url('${img}')`);
+  } else {
+    header.style.removeProperty('--header-img');
+  }
+  const hasCustomForThisCategory = await dbGetHeader(key);
+  resetBtn.style.display = hasCustomForThisCategory ? 'block' : 'none';
+  label.textContent = activeOshi ? `ヘッダー画像(${activeOshi})` : 'ヘッダー画像(デフォルト)';
+}
+
+async function handleHeaderImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
   try {
-    entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch(e) { entries = []; }
+    const dataUrl = await compressImage(file, 1600, 0.85);
+    const key = headerKeyFor(activeOshi);
+    await dbSetHeader(key, dataUrl);
+    await applyHeaderImage();
+    showToast('ヘッダー画像を変更しました ✓');
+  } catch(e) {
+    showToast('画像の読み込みに失敗しました');
+  }
+  event.target.value = '';
+}
+
+async function resetHeaderImage() {
+  const key = headerKeyFor(activeOshi);
+  await dbDeleteHeader(key);
+  await applyHeaderImage();
+  showToast('デフォルトに戻しました');
+}
+
+const DB_NAME = 'oshikatsu_log_db';
+const DB_STORE = 'entries';
+const HEADER_STORE = 'headers';
+let db = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 2);
+    req.onupgradeneeded = e => {
+      const database = e.target.result;
+      if (!database.objectStoreNames.contains(DB_STORE)) {
+        database.createObjectStore(DB_STORE, { keyPath: 'id' });
+      }
+      if (!database.objectStoreNames.contains(HEADER_STORE)) {
+        database.createObjectStore(HEADER_STORE, { keyPath: 'key' });
+      }
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror = e => reject(e.target.error);
+  });
+}
+
+function dbGetHeader(key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(HEADER_STORE, 'readonly');
+    const req = tx.objectStore(HEADER_STORE).get(key);
+    req.onsuccess = () => resolve(req.result ? req.result.value : null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbSetHeader(key, value) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(HEADER_STORE, 'readwrite');
+    tx.objectStore(HEADER_STORE).put({ key, value });
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function dbDeleteHeader(key) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(HEADER_STORE, 'readwrite');
+    tx.objectStore(HEADER_STORE).delete(key);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function dbGetAll() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readonly');
+    const store = tx.objectStore(DB_STORE);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbPut(entry) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).put(entry);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function dbDelete(id) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).delete(id);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function dbClear() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).clear();
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function dbPutAll(list) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    const store = tx.objectStore(DB_STORE);
+    list.forEach(item => store.put(item));
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function load() {
+  try {
+    db = await openDB();
+    entries = await migrateFromLocalStorageIfNeeded();
+    if (entries === null) entries = await dbGetAll();
+    await loadOshiOrder();
+  } catch(e) {
+    entries = [];
+    showToast('⚠ データベースの読み込みに失敗しました');
+  }
+  const list = getAllOshi();
+  if (list.length > 0) activeOshi = list[0];
   render();
+  applyHeaderImage();
 }
 
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+// One-time migration: if old localStorage data exists and IndexedDB is empty, move it over
+async function migrateFromLocalStorageIfNeeded() {
+  const existing = await dbGetAll();
+  if (existing.length > 0) return existing;
+  try {
+    const old = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (Array.isArray(old) && old.length > 0) {
+      await dbPutAll(old);
+      localStorage.removeItem(STORAGE_KEY);
+      showToast('過去のデータを新しい保存形式に移行しました ✓');
+      return old;
+    }
+  } catch(e) {}
+  return null;
 }
 
-function getAllTags() {
+async function save(updatedEntry, deletedId) {
+  try {
+    if (deletedId) {
+      await dbDelete(deletedId);
+    } else if (updatedEntry) {
+      await dbPut(updatedEntry);
+    }
+    return true;
+  } catch(e) {
+    showToast('⚠ 保存に失敗しました');
+    return false;
+  }
+}
+
+// Resize/compress an image file to a JPEG data URL to keep storage small
+function compressImage(file, maxSize, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = Math.round(height * (maxSize / width));
+            width = maxSize;
+          } else {
+            width = Math.round(width * (maxSize / height));
+            height = maxSize;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+const OSHI_ORDER_KEY = '__oshi_order__';
+let oshiOrder = [];
+
+async function loadOshiOrder() {
+  oshiOrder = await dbGetHeader(OSHI_ORDER_KEY) || [];
+}
+
+async function saveOshiOrder() {
+  await dbSetHeader(OSHI_ORDER_KEY, oshiOrder);
+}
+
+function getAllOshi() {
   const set = new Set();
-  entries.forEach(e => (e.tags||[]).forEach(t => set.add(t)));
-  return [...set].sort();
+  entries.forEach(e => { if (e.oshi) set.add(e.oshi); });
+  // keep saved order for known items, append any new ones at the end
+  const known = oshiOrder.filter(o => set.has(o));
+  const extra = [...set].filter(o => !oshiOrder.includes(o)).sort();
+  const combined = [...known, ...extra];
+  if (extra.length > 0) {
+    oshiOrder = combined;
+    saveOshiOrder();
+  }
+  return combined;
 }
 
-function renderFolderbar() {
-  const tags = getAllTags();
-  const bar = document.getElementById('folderbar');
-  if (tags.length === 0) { bar.innerHTML = ''; return; }
-  const allCount = entries.length;
-  let html = `<div class="folder-chip ${activeTag===null?'active':''}" onclick="setTagFilter(null)">
-      <span class="icon">📂</span>すべて<span class="count">${allCount}件</span>
-    </div>`;
-  html += tags.map(t => {
-    const count = entries.filter(e => (e.tags||[]).includes(t)).length;
-    return `<div class="folder-chip ${activeTag===t?'active':''}" onclick="setTagFilter('${t.replace(/'/g,"\\'")}')">
-      <span class="icon">🗂️</span>${escapeHtml(t)}<span class="count">${count}件</span>
-    </div>`;
-  }).join('');
-  bar.innerHTML = html;
+function renderOshibar() {
+  const list = getAllOshi();
+  const bar = document.getElementById('oshibar');
+  if (list.length === 0) { bar.innerHTML = ''; return; }
+  bar.innerHTML = list.map(o => `<div class="oshi-tab ${activeOshi===o?'active':''}" onclick="setOshiFilter('${o.replace(/'/g,"\\'")}')">${escapeHtml(o)}</div>`).join('');
+  renderOshiOrderList();
 }
 
-function setTagFilter(tag) {
-  activeTag = tag;
+function renderOshiOrderList() {
+  const el = document.getElementById('oshiOrderList');
+  if (!el) return;
+  const list = getAllOshi();
+  if (list.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = list.map((o, i) => `
+    <div class="order-row">
+      <span class="order-name">${escapeHtml(o)}</span>
+      <button onclick="moveOshi(${i}, -1)" ${i===0?'disabled':''}>▲</button>
+      <button onclick="moveOshi(${i}, 1)" ${i===list.length-1?'disabled':''}>▼</button>
+    </div>
+  `).join('');
+}
+
+async function moveOshi(index, dir) {
+  const list = getAllOshi();
+  const target = index + dir;
+  if (target < 0 || target >= list.length) return;
+  [list[index], list[target]] = [list[target], list[index]];
+  oshiOrder = list;
+  await saveOshiOrder();
   render();
+}
+
+function setOshiFilter(oshi) {
+  activeOshi = (activeOshi === oshi) ? null : oshi;
+  render();
+  applyHeaderImage();
 }
 
 function render() {
-  renderFolderbar();
+  renderOshibar();
   const list = document.getElementById('list');
   let filtered = entries;
-  if (activeTag) {
-    filtered = entries.filter(e => (e.tags||[]).includes(activeTag));
+  if (activeOshi) {
+    filtered = filtered.filter(e => e.oshi === activeOshi);
   }
   if (filtered.length === 0) {
     list.innerHTML = entries.length === 0
       ? '<div class="empty">まだ記録がありません。<br>右下の「＋」から最初の参戦記録を追加しよう！</div>'
-      : '<div class="empty">このタグの記録はまだありません。</div>';
+      : '<div class="empty">このカテゴリの記録はまだありません。</div>';
     return;
   }
   const sorted = [...filtered].sort((a,b) => (b.date||'').localeCompare(a.date||''));
   list.innerHTML = sorted.map(e => `
     <div class="card" id="card-${e.id}">
-      <div class="card-head" style="flex-direction:column; width:100%;">
-        <div class="card-date">${e.date || '日付未設定'}</div>
-        <div class="card-title" onclick="toggleCard('${e.id}')">
-          <span class="chev">▶</span>${escapeHtml(e.title || '(無題)')}
+      <div class="card-head">
+        <div class="card-info">
+          <div class="card-date">${e.date || '日付未設定'}</div>
+          <div class="card-title" onclick="toggleCard('${e.id}')">
+            <span class="chev">▶</span>
+            <span class="title-text">${escapeHtml(e.title || '(無題)')}</span>
+          </div>
+          ${e.venue ? `<div class="card-venue">📍 ${escapeHtml(e.venue)}</div>` : ''}
+          ${e.seat ? `<div class="card-seat">🎫 ${escapeHtml(e.seat)}</div>` : ''}
         </div>
-        ${e.venue ? `<div class="card-venue">📍 ${escapeHtml(e.venue)}</div>` : ''}
-        ${e.seat ? `<div class="card-seat">🎫 ${escapeHtml(e.seat)}</div>` : ''}
-        ${e.tags && e.tags.length ? `<div class="card-tags">${e.tags.map(t=>`<span>#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+        ${e.thumb ? `<img class="title-thumb" src="${e.thumb}" onclick="event.stopPropagation(); viewImage('${e.thumb.replace(/'/g,"\\'")}')">` : ''}
       </div>
       <div class="card-detail">
         ${e.memo ? `<div class="card-memo">${escapeHtml(e.memo)}</div>` : ''}
@@ -615,28 +940,63 @@ function openModal(entry) {
   document.getElementById('f-title').value = entry ? entry.title : '';
   document.getElementById('f-venue').value = entry ? entry.venue : '';
   document.getElementById('f-seat').value = entry ? entry.seat : '';
-  document.getElementById('f-tags').value = entry ? (entry.tags||[]).join(', ') : '';
+  document.getElementById('f-oshi').value = entry ? (entry.oshi || '') : (activeOshi || '');
   document.getElementById('f-memo').value = entry ? entry.memo : '';
   currentImages = entry ? [...(entry.images||[])] : [];
+  currentThumb = entry ? (entry.thumb || null) : null;
   renderImgPreview();
+  renderThumbPreview();
   document.getElementById('overlay').classList.add('show');
 }
 
 function closeModal() {
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('f-images').value = '';
+  document.getElementById('f-thumb').value = '';
 }
 
-function handleImages(event) {
+async function handleImages(event) {
   const files = Array.from(event.target.files);
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      currentImages.push(e.target.result);
+  if (files.length === 0) return;
+  showToast(`画像を処理中... (${files.length}枚)`);
+  for (const file of files) {
+    try {
+      const dataUrl = await compressImage(file, 1280, 0.8);
+      currentImages.push(dataUrl);
       renderImgPreview();
-    };
-    reader.readAsDataURL(file);
-  });
+    } catch(e) {
+      showToast('画像の読み込みに失敗しました');
+    }
+  }
+  showToast('画像を追加しました ✓');
+}
+
+async function handleThumb(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    currentThumb = await compressImage(file, 1000, 0.85);
+    renderThumbPreview();
+  } catch(e) {
+    showToast('画像の読み込みに失敗しました');
+  }
+}
+
+function renderThumbPreview() {
+  const el = document.getElementById('thumbPreview');
+  if (!currentThumb) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <div class="thumb">
+      <img src="${currentThumb}">
+      <button class="rm" onclick="removeThumb()">×</button>
+    </div>
+  `;
+}
+
+function removeThumb() {
+  currentThumb = null;
+  renderThumbPreview();
+  document.getElementById('f-thumb').value = '';
 }
 
 function renderImgPreview() {
@@ -654,31 +1014,30 @@ function removeImage(i) {
   renderImgPreview();
 }
 
-function saveEntry() {
+async function saveEntry() {
   const title = document.getElementById('f-title').value.trim();
   if (!title) {
     showToast('タイトルを入力してください');
     return;
   }
-  const tagsRaw = document.getElementById('f-tags').value.trim();
-  const tags = tagsRaw ? tagsRaw.split(',').map(t=>t.trim()).filter(Boolean) : [];
   const data = {
     id: editingId || Date.now().toString(),
     date: document.getElementById('f-date').value,
     title: title,
+    oshi: document.getElementById('f-oshi').value.trim(),
     venue: document.getElementById('f-venue').value.trim(),
     seat: document.getElementById('f-seat').value.trim(),
-    tags: tags,
     memo: document.getElementById('f-memo').value.trim(),
-    images: [...currentImages]
+    images: [...currentImages],
+    thumb: currentThumb
   };
+  if (!(await save(data))) return;
   if (editingId) {
     const idx = entries.findIndex(e => e.id === editingId);
     if (idx >= 0) entries[idx] = data;
   } else {
     entries.push(data);
   }
-  save();
   render();
   closeModal();
   showToast('保存しました ✓');
@@ -689,10 +1048,10 @@ function editEntry(id) {
   if (entry) openModal(entry);
 }
 
-function deleteEntry(id) {
+async function deleteEntry(id) {
   if (!confirm('この記録を削除しますか？')) return;
+  await save(null, id);
   entries = entries.filter(e => e.id !== id);
-  save();
   render();
   showToast('削除しました');
 }
@@ -721,22 +1080,24 @@ function importData(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     try {
       const data = JSON.parse(e.target.result);
       if (!Array.isArray(data)) throw new Error('invalid format');
       if (entries.length > 0) {
         if (!confirm(`現在の記録(${entries.length}件)を、復元データ(${data.length}件)で上書きしますか？\n「キャンセル」で追加読み込みになります。`)) {
           const existingIds = new Set(entries.map(e => e.id));
-          data.forEach(d => { if (!existingIds.has(d.id)) entries.push(d); });
-          save();
+          const toAdd = data.filter(d => !existingIds.has(d.id));
+          await dbPutAll(toAdd);
+          entries.push(...toAdd);
           render();
-          showToast(`${data.length}件を追加読み込みしました`);
+          showToast(`${toAdd.length}件を追加読み込みしました`);
           return;
         }
       }
+      await dbClear();
+      await dbPutAll(data);
       entries = data;
-      save();
       render();
       showToast('復元しました ✓');
     } catch(err) {
