@@ -1,6 +1,6 @@
 {
-  "name": "推し活LOG",
-  "short_name": "推し活LOG",
+  "name": "LIVE:Diary",
+  "short_name": "LIVE:Diary",
   "description": "推し活の参戦記録をネオンカラーで残せるアプリ",
   "start_url": "./index.html",
   "scope": "./",
