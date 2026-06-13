@@ -164,39 +164,44 @@
   /* Oshi sticky-note tabs */
   .oshibar {
     display: flex;
-    gap: 6px;
-    padding: 14px 16px 0;
+    gap: 8px;
+    padding: 14px 16px;
     overflow-x: auto;
     max-width: 600px;
     margin: 0 auto;
   }
   .oshi-tab {
     flex-shrink: 0;
-    padding: 9px 16px 7px;
+    padding: 10px 18px;
     font-size: 13px;
     font-weight: 900;
     letter-spacing: 1px;
     white-space: nowrap;
     cursor: pointer;
-    border-radius: 8px 8px 2px 2px;
-    color: var(--bg);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-dim);
+    border: 1px solid rgba(255,255,255,0.08);
     position: relative;
-    transform: rotate(-1deg);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
-    opacity: 0.55;
-    transition: opacity 0.15s, transform 0.15s;
-  }
-  .oshi-tab:nth-child(1) { background: var(--neon-pink); }
-  .oshi-tab:nth-child(2) { background: var(--neon-cyan); transform: rotate(1deg); }
-  .oshi-tab:nth-child(3) { background: var(--neon-yellow); }
-  .oshi-tab:nth-child(4) { background: var(--neon-purple); transform: rotate(1deg); color: #fff; }
-  .oshi-tab:nth-child(5) { background: #00ffa3; }
-  .oshi-tab:nth-child(6) { background: #ff9d2e; transform: rotate(1deg); }
-  .oshi-tab:nth-child(n+7) { background: var(--text-dim); color: var(--bg); }
-  .oshi-tab.active {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     opacity: 1;
-    transform: rotate(0deg) translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.5);
+    transition: all 0.15s;
+  }
+  .oshi-tab:nth-child(1) { border-color: rgba(255,46,196,0.4); }
+  .oshi-tab:nth-child(2) { border-color: rgba(0,240,255,0.4); }
+  .oshi-tab:nth-child(3) { border-color: rgba(250,255,0,0.4); }
+  .oshi-tab:nth-child(4) { border-color: rgba(177,78,255,0.4); }
+  .oshi-tab:nth-child(5) { border-color: rgba(0,255,163,0.4); }
+  .oshi-tab:nth-child(6) { border-color: rgba(255,157,46,0.4); }
+  .oshi-tab.active:nth-child(1) { background: var(--neon-pink); color: var(--bg); border-color: var(--neon-pink); }
+  .oshi-tab.active:nth-child(2) { background: var(--neon-cyan); color: var(--bg); border-color: var(--neon-cyan); }
+  .oshi-tab.active:nth-child(3) { background: var(--neon-yellow); color: var(--bg); border-color: var(--neon-yellow); }
+  .oshi-tab.active:nth-child(4) { background: var(--neon-purple); color: #fff; border-color: var(--neon-purple); }
+  .oshi-tab.active:nth-child(5) { background: #00ffa3; color: var(--bg); border-color: #00ffa3; }
+  .oshi-tab.active:nth-child(6) { background: #ff9d2e; color: var(--bg); border-color: #ff9d2e; }
+  .oshi-tab.active:nth-child(n+7) { background: var(--text-dim); color: var(--bg); }
+  .oshi-tab.active {
+    box-shadow: 0 4px 14px rgba(255,46,196,0.3);
   }
 
 
