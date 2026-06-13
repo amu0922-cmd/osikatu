@@ -246,6 +246,7 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 10px;
+    cursor: pointer;
   }
   .card-info {
     flex: 1;
@@ -524,7 +525,7 @@
 
 <header>
   <div class="title-wrap">
-    <h1>Vlog</h1>
+    <h1>LIVE:Diary</h1>
     <p>OSHI ACTIVITY RECORD</p>
   </div>
   <button class="settings-btn" onclick="toggleSettings()">⚙</button>
@@ -955,10 +956,10 @@ function render() {
   const sorted = [...filtered].sort((a,b) => (b.date||'').localeCompare(a.date||''));
   list.innerHTML = sorted.map(e => `
     <div class="card" id="card-${e.id}">
-      <div class="card-head">
+      <div class="card-head" onclick="toggleCard('${e.id}')">
         <div class="card-info">
           <div class="card-date">${e.date || '日付未設定'}</div>
-          <div class="card-title" onclick="toggleCard('${e.id}')">
+          <div class="card-title">
             <span class="chev">▶</span>
             <span class="title-text">${escapeHtml(e.title || '(無題)')}</span>
           </div>
