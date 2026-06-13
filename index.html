@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0a0a14">
 <title>推し活VLOG</title>
 <link rel="manifest" href="manifest.json">
@@ -958,6 +958,11 @@ function openModal(entry) {
   renderImgPreview();
   renderThumbPreview();
   document.getElementById('overlay').classList.add('show');
+  // Force iOS to recompute the viewport scale to avoid stale-zoom rendering glitches
+  const vp = document.querySelector('meta[name=viewport]');
+  const content = vp.getAttribute('content');
+  vp.setAttribute('content', content + ', maximum-scale=1.0');
+  setTimeout(() => vp.setAttribute('content', content), 50);
 }
 
 function closeModal() {
