@@ -715,6 +715,34 @@ function dbDeleteHeader(key) {
   });
 }
 
+function dbGetAllHeaders() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(HEADER_STORE, 'readonly');
+    const req = tx.objectStore(HEADER_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function dbPutAllHeaders(list) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(HEADER_STORE, 'readwrite');
+    const store = tx.objectStore(HEADER_STORE);
+    list.forEach(item => store.put(item));
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function dbClearHeaders() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(HEADER_STORE, 'readwrite');
+    tx.objectStore(HEADER_STORE).clear();
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 function dbGetAll() {
   return new Promise((resolve, reject) => {
     const tx = db.transaction(DB_STORE, 'readonly');
@@ -1089,8 +1117,9 @@ function viewImage(src) {
   document.getElementById('imgViewer').classList.add('show');
 }
 
-function exportData() {
-  const payload = { entries: entries, oshiOrder: oshiOrder };
+async function exportData() {
+  const headers = await dbGetAllHeaders();
+  const payload = { entries: entries, headers: headers };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1112,13 +1141,19 @@ function importData(event) {
   reader.onload = async e => {
     try {
       const parsed = JSON.parse(e.target.result);
-      let data, order;
+      let data, headers;
       if (Array.isArray(parsed)) {
         data = parsed;
-        order = null;
+        headers = null;
       } else if (parsed && Array.isArray(parsed.entries)) {
         data = parsed.entries;
-        order = Array.isArray(parsed.oshiOrder) ? parsed.oshiOrder : null;
+        if (Array.isArray(parsed.headers)) {
+          headers = parsed.headers;
+        } else if (Array.isArray(parsed.oshiOrder)) {
+          headers = [{ key: OSHI_ORDER_KEY, value: parsed.oshiOrder }];
+        } else {
+          headers = null;
+        }
       } else {
         throw new Error('invalid format');
       }
@@ -1128,12 +1163,12 @@ function importData(event) {
           const toAdd = data.filter(d => !existingIds.has(d.id));
           await dbPutAll(toAdd);
           entries.push(...toAdd);
-          if (order) {
-            const merged = [...oshiOrder, ...order.filter(o => !oshiOrder.includes(o))];
-            oshiOrder = merged;
-            await saveOshiOrder();
+          if (headers) {
+            await dbPutAllHeaders(headers);
+            await loadOshiOrder();
           }
           render();
+          applyHeaderImage();
           showToast(`${toAdd.length}件を追加読み込みしました`);
           return;
         }
@@ -1141,11 +1176,13 @@ function importData(event) {
       await dbClear();
       await dbPutAll(data);
       entries = data;
-      if (order) {
-        oshiOrder = order;
-        await saveOshiOrder();
+      if (headers) {
+        await dbClearHeaders();
+        await dbPutAllHeaders(headers);
+        await loadOshiOrder();
       }
       render();
+      applyHeaderImage();
       showToast('復元しました ✓');
     } catch(err) {
       showToast('読み込みに失敗しました');
